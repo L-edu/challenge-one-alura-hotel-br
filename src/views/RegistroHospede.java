@@ -7,20 +7,22 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.JTextField;
 import java.awt.Color;
 import com.toedter.calendar.JDateChooser;
+
+import jdbc.controller.HospedeController;
+import jdbc.controller.ReservaController;
+import jdbc.modelo.Hospede;
+import jdbc.modelo.Reserva;
+
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import java.awt.Font;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import java.awt.SystemColor;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
 import java.text.Format;
-import java.awt.event.ActionEvent;
 import java.awt.Toolkit;
 import javax.swing.SwingConstants;
 import javax.swing.JSeparator;
@@ -35,9 +37,12 @@ public class RegistroHospede extends JFrame {
 	private JTextField txtNreserva;
 	private JDateChooser txtDataN;
 	private JComboBox<Format> txtNacionalidade;
+	private HospedeController hospedesController;
+	private ReservaController reservasController;
 	private JLabel labelExit;
 	private JLabel labelAtras;
 	int xMouse, yMouse;
+	int id;
 
 	/**
 	 * Launch the application.
@@ -46,7 +51,7 @@ public class RegistroHospede extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					RegistroHospede frame = new RegistroHospede();
+					RegistroHospede frame = new RegistroHospede(0);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -58,7 +63,10 @@ public class RegistroHospede extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public RegistroHospede() {
+	public RegistroHospede(int idReserva) {
+		this.hospedesController = new HospedeController();
+		this.reservasController = new ReservaController();
+		
 		
 		setIconImage(Toolkit.getDefaultToolkit().getImage(RegistroHospede.class.getResource("/imagenes/lOGO-50PX.png")));
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -71,52 +79,8 @@ public class RegistroHospede extends JFrame {
 		setUndecorated(true);
 		contentPane.setLayout(null);
 		
+		
 		JPanel header = new JPanel();
-		header.setBounds(-54, 0, 910, 36);
-		header.addMouseMotionListener(new MouseMotionAdapter() {
-			@Override
-			public void mouseDragged(MouseEvent e) {
-				headerMouseDragged(e);
-			     
-			}
-		});
-		header.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mousePressed(MouseEvent e) {
-				headerMousePressed(e);
-			}
-		});
-		
-		JPanel btnexit = new JPanel();
-		btnexit.setBounds(857, 0, 53, 36);
-		contentPane.add(btnexit);
-		btnexit.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				MenuPrincipal principal = new MenuPrincipal();
-				principal.setVisible(true);
-				dispose();
-			}
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				btnexit.setBackground(Color.red);
-				labelExit.setForeground(Color.white);
-			}			
-			@Override
-			public void mouseExited(MouseEvent e) {
-				 btnexit.setBackground(Color.white);
-			     labelExit.setForeground(Color.black);
-			}
-		});
-		btnexit.setLayout(null);
-		btnexit.setBackground(Color.white);
-		
-		labelExit = new JLabel("X");
-		labelExit.setBounds(0, 0, 53, 36);
-		btnexit.add(labelExit);
-		labelExit.setHorizontalAlignment(SwingConstants.CENTER);
-		labelExit.setForeground(SystemColor.black);
-		labelExit.setFont(new Font("Roboto", Font.PLAIN, 18));
 		header.setLayout(null);
 		header.setBackground(SystemColor.text);
 		header.setOpaque(false);
@@ -182,7 +146,7 @@ public class RegistroHospede extends JFrame {
 		txtNacionalidade.setBounds(560, 350, 289, 36);
 		txtNacionalidade.setBackground(SystemColor.text);
 		txtNacionalidade.setFont(new Font("Roboto", Font.PLAIN, 16));
-		txtNacionalidade.setModel(new DefaultComboBoxModel(new String[] {"alemão", "andorrano", "angolano", "antiguano", "saudita", "argelino", "argentino", "armênio", "australiano", "austríaco", "azerbaijano", "bahamense", "bangladês, bangladense", "barbadiano", "bahreinita", "belga", "belizenho", "beninês", "belarusso", "boliviano", "bósnio", "botsuanês", "brasileiro", "bruneíno", "búlgaro", "burkineonse, burkinabé", "burundês", "butanês", "cabo-verdiano", "camerounês", "cambojano", "catariano", "canadense", "cazaque", "chadiano", "chileno", "chinês", "cipriota", "colombiano", "comoriano", "congolês", "congolês", "sul-coreano", "norte-coreano", "costa-marfinense, marfinense", "costa-ricense", "croata", "cubano", "dinamarquês", "djiboutiano", "dominiquense", "egípcio", "salvadorenho", "emiradense, emirático", "equatoriano", "eritreu", "eslovaco", "esloveno", "espanhol", "estadunidense, (norte-)americano", "estoniano", "etíope", "fijiano", "filipino", "finlandês", "francês", "gabonês", "gambiano", "ganês ou ganense", "georgiano", "granadino", "grego", "guatemalteco", "guianês", "guineense", "guineense, bissau-guineense", "equato-guineense", "haitiano", "hondurenho", "húngaro", "iemenita", "cookiano", "marshallês", "salomonense", "indiano", "indonésio", "iraniano", "iraquiano", "irlandês", "islandês", "34", "jamaicano", "japonês", "jordaniano", "kiribatiano", "kuwaitiano", "laosiano", "lesotiano", "letão", "libanês", "liberiano", "líbio", "liechtensteiniano", "lituano", "luxemburguês", "macedônio", "madagascarense", "malásio37", "malawiano", "maldivo", "maliano", "maltês", "marroquino", "mauriciano", "mauritano", "mexicano", "myanmarense", "micronésio", "moçambicano", "moldovo", "monegasco", "mongol", "montenegrino", "namibiano", "nauruano", "nepalês", "nicaraguense", "nigerino", "nigeriano", "niuiano", "norueguês", "neozelandês", "omani", "neerlandês", "palauano", "palestino", "panamenho", "papua, papuásio", "paquistanês", "paraguaio", "peruano", "polonês, polaco", "português", "queniano", "quirguiz", "britânico", "centro-africano", "tcheco", "dominicano", "romeno", "ruandês", "russo", "samoano", "santa-lucense", "são-cristovense", "samarinês", "santomense", "são-vicentino", "seichelense", "senegalês", "sérvio", "singapurense", "sírio", "somaliano, somali", "sri-lankês", "suázi", "sudanês", "sul-sudanês", "sueco", "suíço", "surinamês", "tajique", "tailandês", "tanzaniano", "timorense", "togolês", "tonganês", "trinitário", "tunisiano", "turcomeno", "turco", "tuvaluano", "ucraniano", "ugandês", "uruguaio", "uzbeque", "vanuatuense", "vaticano", "venezuelano", "vietnamita", "zambiano", "zimbabueano"}));
+		txtNacionalidade.setModel(new DefaultComboBoxModel(new String[] {"afegão-afegã", "alemão-", "alemã", "árabe-árabe", "argentino-argentina", "australiano-australiana", "belga-belga", "boliviano-boliviana", "brasileiro-brasileira", "cambojano-cambojana", "canadense-canadense", "chileno-chilena", "chinês-chinesa", "colombiano-colombiana", "coreano-coreana", "costa-riquenho-costa-riquenha", "cubano-cubana", "dinamarquês-dinamarquesa", "equatoriano-equatoriana", "egípcio-egípcia", "salvadorenho-salvadorenha", "escocês-escocesa", "espanhol-espanhola", "estadounidense-estadounidense", "estoniano-estoniana", "etíope-etíope", "filipino-filipina", "finlandês-finlandesa", "francês-francesa", "galês-galesa", "grego-grega", "guatemalteco-guatemalteca", "haitiano-haitiana", "holandês-holandesa", "hondurenho-hondurenha", "indonésio-indonésia", "inglês-inglesa", "iraquiano-iraquiana", "iraniano-iraniana", "irlandês-irlandesa", "israelita-israelita", "italiano-italiana", "japonês-japonesa", "jordaniano-jordaniana", "laosiano-laosiana", "letão-letã", "libanês-libanesa", "maliano-maliana", "marroquino-marroquina", "mexicano-mexicana", "nicaraguense-nicaraguense", "norueguês-norueguesa", "neozelandês-neozelandesa", "panamenho-panamenha", "paraguaio-paraguaia", "peruano-peruana", "polonês-polonesa", "português-portuguesa", "portorriquenho-portorriquenha", "dominicano-dominicana", "romeno-romena", "russo-russa", "sueco-sueca", "suíço-suíça", "tailandês-tailandesa", "taiwanês-taiwanesa", "turco-turca", "ucraniano-ucraniana", "uruguaio-uruguaia", "venezuelano-venezuelana", "vietnamita-vietnamita"}));
 		contentPane.add(txtNacionalidade);
 		
 		JLabel lblNome = new JLabel("NOME");
@@ -197,11 +161,11 @@ public class RegistroHospede extends JFrame {
 		lblSobrenome.setFont(new Font("Roboto Black", Font.PLAIN, 18));
 		contentPane.add(lblSobrenome);
 		
-		JLabel lblDataN = new JLabel("DATA DE NASCIMENTO");
-		lblDataN.setBounds(560, 256, 255, 14);
-		lblDataN.setForeground(SystemColor.textInactiveText);
-		lblDataN.setFont(new Font("Roboto Black", Font.PLAIN, 18));
-		contentPane.add(lblDataN);
+		JLabel lblNascimento = new JLabel("DATA DE NASCIMENTO");
+		lblNascimento.setBounds(560, 256, 255, 14);
+		lblNascimento.setForeground(SystemColor.textInactiveText);
+		lblNascimento.setFont(new Font("Roboto Black", Font.PLAIN, 18));
+		contentPane.add(lblNascimento);
 		
 		JLabel lblNacionalidade = new JLabel("NACIONALIDADE");
 		lblNacionalidade.setBounds(560, 326, 255, 14);
@@ -223,26 +187,33 @@ public class RegistroHospede extends JFrame {
 		txtTelefone.setBorder(javax.swing.BorderFactory.createEmptyBorder());
 		contentPane.add(txtTelefone);
 		
-		JLabel lblTitulo = new JLabel("REGISTRO HÓSPEDE");
-		lblTitulo.setBounds(606, 55, 234, 42);
-		lblTitulo.setForeground(new Color(12, 138, 199));
-		lblTitulo.setFont(new Font("Roboto Black", Font.PLAIN, 23));
-		contentPane.add(lblTitulo);
+		JLabel lblNewLabel_4 = new JLabel("REGISTRO HÓSPEDE");
+		lblNewLabel_4.setBounds(606, 55, 234, 42);
+		lblNewLabel_4.setForeground(new Color(12, 138, 199));
+		lblNewLabel_4.setFont(new Font("Roboto Black", Font.PLAIN, 23));
+		contentPane.add(lblNewLabel_4);
 		
-		JLabel lblNumeroReserva = new JLabel("NÚMERO DE RESERVA");
-		lblNumeroReserva.setBounds(560, 474, 253, 14);
-		lblNumeroReserva.setForeground(SystemColor.textInactiveText);
-		lblNumeroReserva.setFont(new Font("Roboto Black", Font.PLAIN, 18));
-		contentPane.add(lblNumeroReserva);
+		JLabel lblNreserva = new JLabel("NÚMERO DE RESERVA");
+		lblNreserva.setBounds(560, 474, 253, 14);
+		lblNreserva.setForeground(SystemColor.textInactiveText);
+		lblNreserva.setFont(new Font("Roboto Black", Font.PLAIN, 18));
+		contentPane.add(lblNreserva);
 		
 		txtNreserva = new JTextField();
+
 		txtNreserva.setFont(new Font("Roboto", Font.PLAIN, 16));
 		txtNreserva.setBounds(560, 495, 285, 33);
 		txtNreserva.setColumns(10);
 		txtNreserva.setBackground(Color.WHITE);
 		txtNreserva.setBorder(javax.swing.BorderFactory.createEmptyBorder());
+		txtNreserva.setEditable(false);
+		System.out.println(idReserva);
+		String id = String.valueOf(idReserva);
+		txtNreserva.setText(id);
 		contentPane.add(txtNreserva);
-		
+
+
+
 		JSeparator separator_1_2 = new JSeparator();
 		separator_1_2.setBounds(560, 170, 289, 2);
 		separator_1_2.setForeground(new Color(12, 138, 199));
@@ -279,24 +250,25 @@ public class RegistroHospede extends JFrame {
 		separator_1_2_5.setBackground(new Color(12, 138, 199));
 		contentPane.add(separator_1_2_5);
 		
-		JPanel btnsalvar = new JPanel();
-		btnsalvar.setBounds(723, 560, 122, 35);
-		btnsalvar.addMouseListener(new MouseAdapter() {
+		JPanel btnSalvar = new JPanel();
+		btnSalvar.setBounds(723, 560, 122, 35);
+		btnSalvar.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				salvarHospede();
 			}
 		});
-		btnsalvar.setLayout(null);
-		btnsalvar.setBackground(new Color(12, 138, 199));
-		contentPane.add(btnsalvar);
-		btnsalvar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+		btnSalvar.setLayout(null);
+		btnSalvar.setBackground(new Color(12, 138, 199));
+		contentPane.add(btnSalvar);
+		btnSalvar.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 		
 		JLabel labelSalvar = new JLabel("SALVAR");
 		labelSalvar.setHorizontalAlignment(SwingConstants.CENTER);
 		labelSalvar.setForeground(Color.WHITE);
 		labelSalvar.setFont(new Font("Roboto", Font.PLAIN, 18));
 		labelSalvar.setBounds(0, 0, 122, 35);
-		btnsalvar.add(labelSalvar);
+		btnSalvar.add(labelSalvar);
 		
 		JPanel panel = new JPanel();
 		panel.setBounds(0, 0, 489, 634);
@@ -304,27 +276,62 @@ public class RegistroHospede extends JFrame {
 		contentPane.add(panel);
 		panel.setLayout(null);
 		
-		JLabel imageFundo = new JLabel("");
-		imageFundo.setBounds(0, 121, 479, 502);
-		panel.add(imageFundo);
-		imageFundo.setIcon(new ImageIcon(RegistroHospede.class.getResource("/imagenes/registro.png")));
+		JLabel imagemFundo = new JLabel("");
+		imagemFundo.setBounds(0, 121, 479, 502);
+		panel.add(imagemFundo);
+		imagemFundo.setIcon(new ImageIcon(RegistroHospede.class.getResource("/imagenes/registro.png")));
 		
 		JLabel logo = new JLabel("");
 		logo.setBounds(194, 39, 104, 107);
 		panel.add(logo);
 		logo.setIcon(new ImageIcon(RegistroHospede.class.getResource("/imagenes/Ha-100px.png")));
+		
+		JPanel btnexit = new JPanel();
+		btnexit.setBounds(857, 0, 53, 36);
+		contentPane.add(btnexit);
+		btnexit.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				MenuPrincipal principal = new MenuPrincipal();
+				principal.setVisible(true);
+				dispose();
+			}
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				btnexit.setBackground(Color.red);
+				labelExit.setForeground(Color.white);
+			}			
+			@Override
+			public void mouseExited(MouseEvent e) {
+				 btnexit.setBackground(Color.white);
+			     labelExit.setForeground(Color.black);
+			}
+		});
+		btnexit.setLayout(null);
+		btnexit.setBackground(Color.white);
+		
+		labelExit = new JLabel("X");
+		labelExit.setBounds(0, 0, 53, 36);
+		btnexit.add(labelExit);
+		labelExit.setHorizontalAlignment(SwingConstants.CENTER);
+		labelExit.setForeground(SystemColor.black);
+		labelExit.setFont(new Font("Roboto", Font.PLAIN, 18));
 	}
 	
-	//Código que permite movimentar a janela pela tela seguindo a posição de "x" y "y"
-	 private void headerMousePressed(java.awt.event.MouseEvent evt) {
-	        xMouse = evt.getX();
-	        yMouse = evt.getY();
-	    }
 
-	    private void headerMouseDragged(java.awt.event.MouseEvent evt) {
-	        int x = evt.getXOnScreen();
-	        int y = evt.getYOnScreen();
-	        this.setLocation(x - xMouse, y - yMouse);
-}
-											
+	private void salvarHospede() {
+		
+			if (txtDataN.getDate() != null && !txtNome.equals("") && !txtSobrenome.equals("") && !txtTelefone.equals("")) {
+				String dataNascimento = ((JTextField) txtDataN.getDateEditor().getUiComponent()).getText();
+				int nreserva = Integer.parseInt(txtNreserva.getText());
+				Hospede hospedes = new Hospede(txtNome.getText(), txtSobrenome.getText(),  java.sql.Date.valueOf(dataNascimento), txtNacionalidade.getSelectedItem().toString(), txtTelefone.getText(), nreserva);
+				this.hospedesController.salvar(hospedes);
+				Sucesso sucesso = new Sucesso();
+				sucesso.setVisible(true);
+				dispose();
+			} else {
+				JOptionPane.showMessageDialog(this, "Você deve preencher todos os campos.");
+			}									
+	}
+
 }
